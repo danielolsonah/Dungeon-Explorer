@@ -76,3 +76,11 @@ h3 {
 	float: right; 
 	margin-right: 50px;
 }
+
+#enemyHealthDisplay {
+	font-size: 3.5em;
+	color: black;
+	background-color: red;
+	float: right; 
+	margin-right: 50px;
+}

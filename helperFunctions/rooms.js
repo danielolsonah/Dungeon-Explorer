@@ -15,11 +15,12 @@ module.exports = {
 		enemy: 'goblin'
 	},
 	thirdRoom: {
-		surroundings: 'Something something something3...',
+		surroundings: 'You are in what used to be a busy Alchemy lab.  Broken beakers and flasks are strewn across the dusty floor.  To the East is the way you came, and to the North is a tightly closed door...',
 		north: 'forthRoom',
 		west: null,
 		east: 'secondRoom',
-		south: null
+		south: null,
+		item: 'potion'
 	},
 	forthRoom: {
 		surroundings: 'The floor is missing and you plummet to your doom!',
@@ -30,7 +31,7 @@ module.exports = {
 		instantDeath: true
 	},
 	fifthRoom: {
-		surroundings: 'Something something something5...',
+		surroundings: 'Your slain foe lies near the door from whence you came.  In the dim light you can see a small opening in the crumbling wall to the North.',
 		north: 'sixthRoom',
 		west: 'secondRoom',
 		east: null,
@@ -38,7 +39,7 @@ module.exports = {
 		enemy: 'goblin'
 	},
 	sixthRoom: {
-		surroundings: 'Something something something6...',
+		surroundings: 'Here your path is split: to the West, a door with the word "DANGER" painted above.  To the North, a similar door with similar paint that reads "Certainly no danger"',
 		north: 'eighthRoom',
 		west: 'seventhRoom',
 		east: null,
@@ -53,7 +54,7 @@ module.exports = {
 		instantDeath: true
 	},
 	eighthRoom: {
-		surroundings: 'Something something something8...',
+		surroundings: 'After slaying the troll, you notice an entrance to a cave the troll appeared to bo defending to the North.  There is also a heavy wooden door to the West.',
 		north: 'twelfthRoom',
 		west: 'ninthRoom',
 		east: null,
@@ -61,7 +62,7 @@ module.exports = {
 		enemy: 'troll'
 	},
 	ninthRoom: {
-		surroundings: 'Something something something9...',
+		surroundings: 'You are in a grand hall, with coats of arms on each wall.  To the West, you can spot a small door.  To the North, a wide, sweeping staircase leading to huge double doors',
 		north: 'thirteenthRoom',
 		west: 'tenthRoom',
 		east: 'eighthRoom',
@@ -69,11 +70,12 @@ module.exports = {
 		enemy: 'goblin'
 	},
 	tenthRoom: {
-		surroundings: 'Something something something10...',
+		surroundings: 'You find yourself in what appears to be an old Supply room.  Most of the goods have been looted or spoiled.  You see a locked door to the North, but the lock appears to have been broken...',
 		north: 'eleventhRoom',
 		west: null,
 		east: 'ninthRoom',
-		south: null
+		south: null,
+		item: 'potion'
 	},
 	eleventhRoom: {
 		surroundings: 'Oh no!  Poison gas quickly fills the room and spears shoot from holes in the wall!  You don\'t make it...',
@@ -84,17 +86,20 @@ module.exports = {
 		instantDeath: true
 	},
 	twelfthRoom: {
-		surroundings: 'Something something something12...',
+		surroundings: 'Inside the Trolls\' cave, the floor is covered with skeletons of less-skilled warriors than yourself.  In the gloom, you see the glint of something shiny under a pile of tattered clothes and crumpled armor...',
 		north: null,
 		west: null,
 		east: null,
-		south: 'eighthRoom'
+		south: 'eighthRoom',
+		item: 'sword',
+		enemy: 'troll'
 	},
 	thirteenthRoom: {
-		surroundings: 'Something something something13...',
+		surroundings: 'You can see daylight streaming from the crack under the Northern door; and behind you is the way you came along with the fallen dungeon Boss',
 		north: 'win',
 		west: null,
 		east: null,
-		south: 'ninthRoom'
+		south: 'ninthRoom',
+		enemy: 'boss'
 	}
 }

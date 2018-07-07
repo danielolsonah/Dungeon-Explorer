@@ -3,7 +3,7 @@ const rooms = require('../../../helperFunctions/rooms.js');
 const helpers = require('../../../helperFunctions/helpers.js');
 const villians = require('../../../helperFunctions/villians.js');
 
-const commands = ['look around', 'go north', 'go west', 'go east', 'go south', 'commands']
+const commands = ['look around', 'search room', 'drink potion', 'go north', 'go west', 'go east', 'go south', 'commands']
 
 class App extends React.Component{
 	constructor() {
@@ -15,7 +15,9 @@ class App extends React.Component{
 			alive: true,
 			health: 100,
 			enemyHealth: 0,
-			gold: 0
+			gold: 0,
+			attack: 0,
+			inventory: []
 		};
 		this.handleChange = this.handleChange.bind(this);
 		this.handleClick = this.handleClick.bind(this);
@@ -56,6 +58,7 @@ class App extends React.Component{
 	}
 	battleLoop() {
 		var enemy = villians[this.state.location.enemy].class;
+		var enemyAttack = villians[this.state.location.enemy].attack;
 		if (this.state.enemyHealth <= 0) {
 			this.winBattle();
 		} else if (this.state.health <= 0) {
@@ -67,24 +70,26 @@ class App extends React.Component{
 		} else {
 			var randy = Math.floor(Math.random() * 100);
 			if (randy > 90) {
+				var damage = 30 + this.state.attack;
 				this.setState({
-					display: `A critical hit!  You clobber the ${enemy} for 30 damage!`,
-					enemyHealth: this.state.enemyHealth - 30
+					display: `A critical hit!  You clobber the ${enemy} for ${damage} damage!`,
+					enemyHealth: this.state.enemyHealth - damage
 				}, () => {
 					setTimeout(this.battleLoop, 2500);
 				})
 
 			} else if (randy < 20) {
 				this.setState({
-					display: `You are struck by the ${enemy}!  You lose 10 health...`,
-					health: this.state.health - 10
+					display: `You are struck by the ${enemy}!  You lose ${enemyAttack} health...`,
+					health: this.state.health - enemyAttack
 				}, () => {
 					setTimeout(this.battleLoop, 2500);
 				})
 			} else {
+				var damage = 15 + this.state.attack;
 				this.setState({
-					display: `You landed a hit on the ${enemy} for 15 damage!`,
-					enemyHealth: this.state.enemyHealth - 15
+					display: `You landed a hit on the ${enemy} for ${damage} damage!`,
+					enemyHealth: this.state.enemyHealth - damage
 				}, () => {
 					setTimeout(this.battleLoop, 2500);
 				})
@@ -116,6 +121,33 @@ class App extends React.Component{
 			return 'You can\'t go that way!';
 		}
 	}
+	searchRoom() {
+		var item = this.state.location.item
+		if (!item) {
+			return `You do not find anything useful in this room`;
+		} else if (item === 'potion') {
+			this.setState({
+				inventory: this.state.inventory.concat([item])
+			});
+			return `You found a Health Potion!  It has been added to your inventory.  Drink it to fully replenish your health!`;
+		} else if (item === 'sword') {
+			this.setState({
+				attack: 15
+			})
+			return `You found a magic sword!  Your attack power has incresed!`
+		}
+	}
+	takePotion() {
+		var potionIndex = this.state.inventory.indexOf('potion')
+		if (potionIndex === -1) {
+			return `You do not have any potions.  SEARCH around for one...`;
+		} else {
+			this.setState({
+				health: 100
+			})
+			return `You drink the mysterious potion and feel revitalized!`;
+		}
+	}
 	handleClick() {
 		var input = this.state.inputText.toLowerCase();
 		var output;
@@ -143,8 +175,16 @@ class App extends React.Component{
 					break;
 				case 'commands' :
 					output = commands.join(' ');
+					break;
+				case 'search room' :
+					output = this.searchRoom();
+					break;
+				case 'drink potion' :
+					output = this.takePotion();
+					break;
 				case '' :
-					output = 'What do you do?'
+					output = 'What do you do?';
+					break;
 				default:
 					output = 'Command not found.  Please Try Again'
 			}
@@ -183,6 +223,7 @@ class App extends React.Component{
 						<span id='goldDisplay'>
 							Gold: {this.state.gold}
 						</span>
+						{this.state.enemyHealth > 0 && <span id="enemyHealthDisplay">Enemy Health: {this.state.enemyHealth}</span>}
 					</div> :
 					<div id="loseScreen">
 						GAME OVER 
