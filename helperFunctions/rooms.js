@@ -11,7 +11,8 @@ module.exports = {
 		north: null,
 		west: 'thirdRoom',
 		east: 'fifthRoom',
-		south: 'firstRoom'
+		south: 'firstRoom',
+		enemy: 'goblin'
 	},
 	thirdRoom: {
 		surroundings: 'Something something something3...',
@@ -21,18 +22,20 @@ module.exports = {
 		south: null
 	},
 	forthRoom: {
-		surroundings: 'Something something something4...',
+		surroundings: 'The floor is missing and you plummet to your doom!',
 		north: null,
 		west: null,
 		east: null,
-		south: 'thirdRoom'
+		south: 'thirdRoom',
+		instantDeath: true
 	},
 	fifthRoom: {
 		surroundings: 'Something something something5...',
 		north: 'sixthRoom',
 		west: 'secondRoom',
 		east: null,
-		south: null
+		south: null,
+		enemy: 'goblin'
 	},
 	sixthRoom: {
 		surroundings: 'Something something something6...',
@@ -42,25 +45,28 @@ module.exports = {
 		south: 'fifthRoom'
 	},
 	seventhRoom: {
-		surroundings: 'Something something something7...',
+		surroundings: 'The door locks behind you and the walls rush inward to crush you flat!  You perish...',
 		north: 'null',
 		west: null,
 		east: 'sixthRoom',
-		south: null
+		south: null,
+		instantDeath: true
 	},
 	eighthRoom: {
 		surroundings: 'Something something something8...',
 		north: 'twelfthRoom',
 		west: 'ninthRoom',
 		east: null,
-		south: 'sixthRoom'
+		south: 'sixthRoom',
+		enemy: 'troll'
 	},
 	ninthRoom: {
 		surroundings: 'Something something something9...',
 		north: 'thirteenthRoom',
 		west: 'tenthRoom',
 		east: 'eighthRoom',
-		south: null
+		south: null,
+		enemy: 'goblin'
 	},
 	tenthRoom: {
 		surroundings: 'Something something something10...',
@@ -70,11 +76,12 @@ module.exports = {
 		south: null
 	},
 	eleventhRoom: {
-		surroundings: 'Something something something11...',
+		surroundings: 'Oh no!  Poison gas quickly fills the room and spears shoot from holes in the wall!  You don\'t make it...',
 		north: null,
 		west: null,
 		east: null,
-		south: 'tenthRoom'
+		south: 'tenthRoom',
+		instantDeath: true
 	},
 	twelfthRoom: {
 		surroundings: 'Something something something12...',
