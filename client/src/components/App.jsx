@@ -2,12 +2,14 @@ import React from 'react';
 const rooms = require('../../../helperFunctions/rooms.js');
 const helpers = require('../../../helperFunctions/helpers.js')
 
+const commands = ['look around', 'go north', 'go west', 'go east', 'go south', 'commands']
+
 class App extends React.Component{
 	constructor() {
 		super();
 		this.state = {
 			inputText: '',
-			display: '',
+			display: 'Welcome to Dungeon Explorer!  Click GO to get started...',
 			location: rooms.firstRoom
 		};
 		this.handleChange = this.handleChange.bind(this);
@@ -36,27 +38,35 @@ class App extends React.Component{
 	handleClick() {
 		var input = this.state.inputText.toLowerCase();
 		var output;
-		switch (input) {
-			case 'look around': 
-				output = this.state.location.surroundings;
-				break;
-			case 'win':
-				output = 'You Win!';
-				break;
-			case 'go north' :
-				output = this.changeRoom('north');
-				break;
-			case 'go east' :
-				output = this.changeRoom('east');
-				break;
-			case 'go west' :
-				output = this.changeRoom('west');
-				break;
-			case 'go south' :
-				output = this.changeRoom('south');
-				break;
-			default:
-				output = 'Try Again'
+		if (!input) {
+			output = 'What do you do?';
+		} else {
+			switch (input) {
+				case 'look around': 
+					output = this.state.location.surroundings;
+					break;
+				case 'win':
+					output = 'You Win!';
+					break;
+				case 'go north' :
+					output = this.changeRoom('north');
+					break;
+				case 'go east' :
+					output = this.changeRoom('east');
+					break;
+				case 'go west' :
+					output = this.changeRoom('west');
+					break;
+				case 'go south' :
+					output = this.changeRoom('south');
+					break;
+				case 'commands' :
+					output = commands.join(' ');
+				case '' :
+					output = 'What do you do?'
+				default:
+					output = 'Command not found.  Please Try Again'
+			}
 		}
 		this.setState({
 			display: output,
@@ -71,13 +81,21 @@ class App extends React.Component{
 	}
 	render() {
 		return (
-			<div id='main' onKeyPress={this.handleKeypress}>
-				<div id='display'>
-					<h1>{this.state.display}</h1>
+			<div>
+				<div id='leftPanel'>
+					<h3>Command List</h3>
+					<ul id="commandList">
+						{commands.map(command => <li key={command} className='commandListEntry'>{command}</li>)}
+					</ul>
 				</div>
-				<div id='inputField'>
-					<input id='textField' type='text' value={this.state.inputText} onChange={this.handleChange} />
-					<button id='commandButton' onClick={this.handleClick}>GO</button>
+				<div id='main' onKeyPress={this.handleKeypress}>
+					<div id='display'>
+						<h1>{this.state.display}</h1>
+					</div>
+					<div id='inputField'>
+						<input id='textField' type='text' value={this.state.inputText} onChange={this.handleChange} />
+						<button id='commandButton' onClick={this.handleClick}>GO</button>
+					</div>
 				</div>
 			</div>
 		)

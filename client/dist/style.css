@@ -1,8 +1,9 @@
 #main {
+	display: inline-block;
 	width: 60%;
 	height: 400px;
 	border: 2px solid black;
-	margin: 100px auto;
+	margin-top: 100px;
 }
 
 #display {
@@ -20,3 +21,26 @@
 	margin-left: 100px;
 	margin-top: 10px;
 }
+
+#leftPanel {
+	display: inline-block;
+	width: 20%;
+	height: 400px;
+	text-align: center;
+	padding: 10px;
+}
+
+h3 {
+	text-decoration: underline;
+	font-weight: bold;
+	font-size: 27px;
+}
+
+.commandListEntry {
+	font-size: 18px,
+	font-family: cursive;
+	border: 1px solid green;
+	padding: 5px;
+	list-style-type: none;
+}
+
