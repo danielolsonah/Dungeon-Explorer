@@ -60,6 +60,26 @@ body {
 	padding: 20px 0; 
 }
 
+#userName {
+	display: inline-block;
+	font-size: 32px;
+	width: 100px;
+	float: right;
+	color: white;
+}
+
+#saveButton {
+	background: orange;
+	font-size: 24px;
+	height: 40px;
+	color: black;
+	width: 75px;
+	display: inline-block;
+	float: right;
+	line-height: 24px;
+	padding: 10px;
+}
+
 /*======================================================
  *=================LEFT COLUMN==========================
  *======================================================*/

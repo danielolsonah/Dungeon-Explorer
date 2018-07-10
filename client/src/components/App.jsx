@@ -9,6 +9,8 @@ import CommandButtons from './CommandButtons.jsx';
 import HealthBar from './HealthBar.jsx';
 import BattleScreen from './BattleScreen.jsx';
 import LoginScreen from './LoginScreen.jsx';
+import axios from 'axios';
+import $ from 'jquery';
 
 const rooms = require('../../../helperFunctions/rooms.js');
 const helpers = require('../../../helperFunctions/helpers.js');
@@ -22,7 +24,7 @@ class App extends React.Component{
 			adventureLog: [],
 			battleLog: [],
 			display: 'Welcome to Dungeon Explorer!',
-			location: rooms.firstRoom,
+			location: 'firstRoom',
 			alive: true,
 			health: 100,
 			loggingIn: true,
@@ -30,29 +32,54 @@ class App extends React.Component{
 			attack: 10,
 			inventory: [],
 			inBattle: false,
-			newBattleLogEntry: '',
 			visitedRooms: [],
-			lootedRooms: []
+			lootedRooms: [],
+			userName: ''
 		};
 		this.logIn = this.logIn.bind(this);
 		this.changeRoom = this.changeRoom.bind(this);
 		this.displaySurroundings = this.displaySurroundings.bind(this);
 		this.lose = this.lose.bind(this);
 		this.doBattle = this.doBattle.bind(this);
-		this.battleLoop = this.battleLoop.bind(this);
 		this.winBattle = this.winBattle.bind(this);
 		this.searchRoom = this.searchRoom.bind(this);
 		this.takePotion = this.takePotion.bind(this);
 		this.loseHealth = this.loseHealth.bind(this);
 		this.addToBattleLog = this.addToBattleLog.bind(this);
+		this.saveGame = this.saveGame.bind(this);
 	}
 	logIn(state, newUser) {
 		if (!newUser) {
-			this.setState(state)
+			this.setState(state[0])
+		} else {
+			this.setState({
+				userName: state.userName
+			})
 		}
 		this.setState({
 			loggingIn: false
 		})
+	}
+	saveGame() {
+		axios.post(`${this.state.userName}/save`, this.state)
+		.then(res => {
+			console.log('SAVED')
+		})
+		.catch(err => {
+			console.log('SaveError:\n', err)
+		})
+		// $.ajax({
+		// 	method: 'POST',
+		// 	url: `http://localhost:1337/${this.state.userName}/save`,
+		// 	data: JSON.stringify(this.state),
+		// 	contentType: 'application/json',
+		// 	success: (data) => {
+		// 		console.log('POSTED\n', data)
+		// 	},
+		// 	error: (err) => {
+		// 		console.log('Post error', err)
+		// 	}
+		// })
 	}
 	lose() {
 		this.setState({
@@ -60,12 +87,13 @@ class App extends React.Component{
 		})
 	}
 	displaySurroundings() {
-		var log = this.state.location.surroundings
+		var location = rooms[this.state.location]
+		var log = location.surroundings
 		this.setState({
 			display: log,
 			adventureLog: this.state.adventureLog.concat(log)
 		}, () => {
-			if (this.state.location.instantDeath) {
+			if (location.instantDeath) {
 				setTimeout(this.lose, 3000);
 			}
 		})
@@ -81,59 +109,14 @@ class App extends React.Component{
 		})
 	}
 	doBattle() {
-		var log = `You are attacked by a ${villians[this.state.location.enemy].class}!  You engage in battle!!!`;
+		var villian = villians[rooms[this.state.location].enemy]
+		var log = `You are attacked by a ${villian.class}!  You engage in battle!!!`;
 		this.setState({
 			display: log,
 			adventureLog: this.state.adventureLog.concat(log) 
 		}, () => {
 			setTimeout(() => this.setState({inBattle: true}), 2000);
 		})
-	}
-	battleLoop() {
-		var enemy = villians[this.state.location.enemy].class;
-		var enemyAttack = villians[this.state.location.enemy].attack;
-		if (this.state.enemyHealth <= 0) {
-			this.winBattle();
-		} else if (this.state.health <= 0) {
-			this.setState({
-				display: `You have been slain by the ${enemy}...`
-			}, () => {
-				setTimeout(this.lose, 2000)
-			})
-		} else {
-			var randy = Math.floor(Math.random() * 100);
-			var log;
-			if (randy > 90) {
-				var damage = this.state.attack * 2;
-				log = `A critical hit!  You clobber the ${enemy} for ${damage} damage!`
-				this.setState({
-					display: log,
-					battleLog: this.state.battleLog.concat(log),
-					enemyHealth: this.state.enemyHealth - damage
-				}, () => {
-					setTimeout(this.battleLoop, 2500);
-				})
-			} else if (randy < 40) {
-				log = `You are struck by the ${enemy}!  You lose ${enemyAttack} health...`
-				this.setState({
-					display: log,
-					battleLog: this.state.battleLog.concat(log),
-					health: this.state.health - enemyAttack
-				}, () => {
-					setTimeout(this.battleLoop, 2500);
-				})
-			} else {
-				var damage = this.state.attack;
-				log = `You landed a hit on the ${enemy} for ${damage} damage!`;
-				this.setState({
-					display: log,
-					battleLog: this.state.battleLog.concat(log),
-					enemyHealth: this.state.enemyHealth - damage
-				}, () => {
-					setTimeout(this.battleLoop, 2500);
-				})
-			}
-		}
 	}
 	winBattle(log, goldDrop) {
 		this.setState({
@@ -145,16 +128,17 @@ class App extends React.Component{
 		})
 	}
 	changeRoom(direction) {
+		var location = rooms[this.state.location]
 		var log;
-		if (this.state.location[direction] === 'win') {
+		if (location[direction] === 'win') {
 			log = 'YOU WIN!'
-		} else if (this.state.location[direction]) {
-			var newRoom = rooms[this.state.location[direction]]
+		} else if (location[direction]) {
+			var newRoom = rooms[location[direction]]
 			this.setState({
-				location: newRoom,
-				visitedRooms: this.state.visitedRooms.concat(this.state.location.id)
+				location: location[direction],
+				visitedRooms: this.state.visitedRooms.concat(location.id)
 			}, () => {
-				if (this.state.location.enemy && this.state.visitedRooms.indexOf(newRoom.id) === -1) {
+				if (location.enemy && this.state.visitedRooms.indexOf(newRoom.id) === -1) {
 					setTimeout(this.doBattle, 1000)
 				} else {
 					setTimeout(this.displaySurroundings, 1000)
@@ -170,9 +154,10 @@ class App extends React.Component{
 		})
 	}
 	searchRoom() {
-		var item = this.state.location.item;
+		var location = rooms[this.state.location]
+		var item = location.item;
 		var log;
-		if (!item || this.state.lootedRooms.indexOf(this.state.location.id) !== -1) {
+		if (!item || this.state.lootedRooms.indexOf(location.id) !== -1) {
 			log = `You do not find anything useful in this room`
 		} else if (item === 'potion') {
 			this.setState({
@@ -210,6 +195,7 @@ class App extends React.Component{
 		}
 	}
 	render() {
+		var location = rooms[this.state.location]
 		var stats = {
 			health: this.state.health,
 			gold: this.state.gold,
@@ -219,7 +205,7 @@ class App extends React.Component{
 		var currentLog = this.state.inBattle ? this.state.battleLog : this.state.adventureLog 
 		return (
 			<div>
-				<Title />
+				<Title user={this.state.userName} saveGame={this.saveGame} />
 				{this.state.loggingIn ? <LoginScreen logIn={this.logIn} /> :
 					<div>
 						<div id='leftPanel'>
@@ -238,7 +224,7 @@ class App extends React.Component{
 									{!this.state.inBattle ? 
 										<DisplayScreen displayText={this.state.display} /> : 
 										<BattleScreen 
-											enemy={villians[this.state.location.enemy]}
+											enemy={villians[location.enemy]}
 											loseHealth={this.loseHealth}
 											addToLog={this.addToBattleLog}
 											winBattle={this.winBattle}
