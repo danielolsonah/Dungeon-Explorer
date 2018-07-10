@@ -7,8 +7,7 @@ class LoginScreen extends React.Component{
 		super(props);
 		this.state = {
 			textInput: '',
-			notFound: false,
-			alreadyThere: false
+			message: ''
 		}
 		this.handleChange = this.handleChange.bind(this);
 		this.handleNewUser = this.handleNewUser.bind(this);
@@ -24,8 +23,8 @@ class LoginScreen extends React.Component{
 		.then(res => {
 			if(res.data === 'ALREADY THERE') {
 				this.setState({
-					alreadyThere: true,
-					textInput: ''
+					textInput: '',
+					message: 'Username already exists'
 				})
 			} else {	
 				this.props.logIn({userName: this.state.textInput}, true);
@@ -41,7 +40,8 @@ class LoginScreen extends React.Component{
 			console.log(res.data)
 			if (res.data.length === 0) {
 				this.setState({
-					notFound: true
+					message: 'Username not found',
+					textInput: ''
 				})
 			} else {
 				this.props.logIn(res.data, false)
@@ -55,6 +55,11 @@ class LoginScreen extends React.Component{
 		return (
 			<div id='startScreen'>
 				<input type='text' value={this.state.textInput} onChange={this.handleChange} />
+				{this.state.message !== '' &&	
+					<div id='loginMessage'>
+						{this.state.message}
+					</div>
+				}
 				<div id='loginForm' onClick={this.handleLogIn} >
 					Log In  {this.state.notFound && 'USER NOT FOUND'}  
 				</div>

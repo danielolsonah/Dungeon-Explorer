@@ -9,6 +9,7 @@ import CommandButtons from './CommandButtons.jsx';
 import HealthBar from './HealthBar.jsx';
 import BattleScreen from './BattleScreen.jsx';
 import LoginScreen from './LoginScreen.jsx';
+import Inventory from './Inventory.jsx';
 import axios from 'axios';
 import $ from 'jquery';
 
@@ -34,7 +35,8 @@ class App extends React.Component{
 			inBattle: false,
 			visitedRooms: [],
 			lootedRooms: [],
-			userName: ''
+			userName: '',
+			inventoryOpen: false
 		};
 		this.logIn = this.logIn.bind(this);
 		this.changeRoom = this.changeRoom.bind(this);
@@ -47,6 +49,7 @@ class App extends React.Component{
 		this.loseHealth = this.loseHealth.bind(this);
 		this.addToBattleLog = this.addToBattleLog.bind(this);
 		this.saveGame = this.saveGame.bind(this);
+		this.toggleInventory = this.toggleInventory.bind(this);
 	}
 	logIn(state, newUser) {
 		if (!newUser) {
@@ -138,7 +141,7 @@ class App extends React.Component{
 				location: location[direction],
 				visitedRooms: this.state.visitedRooms.concat(location.id)
 			}, () => {
-				if (location.enemy && this.state.visitedRooms.indexOf(newRoom.id) === -1) {
+				if (newRoom.enemy && this.state.visitedRooms.indexOf(newRoom.id) === -1) {
 					setTimeout(this.doBattle, 1000)
 				} else {
 					setTimeout(this.displaySurroundings, 1000)
@@ -157,17 +160,19 @@ class App extends React.Component{
 		var location = rooms[this.state.location]
 		var item = location.item;
 		var log;
+		console.log(`location: ${location}, item: ${item}`)
 		if (!item || this.state.lootedRooms.indexOf(location.id) !== -1) {
 			log = `You do not find anything useful in this room`
 		} else if (item === 'potion') {
 			this.setState({
 				inventory: this.state.inventory.concat([item]),
-				lootedRooms: this.state.lootedRooms.concat(this.state.location.id)
+				lootedRooms: this.state.lootedRooms.concat(location.id)
 			});
 			log = `You found a Health Potion!  It has been added to your inventory.  Drink it to fully replenish your health!`;
 		} else if (item === 'sword') {
 			this.setState({
-				attack: 15
+				attack: 15,
+				inventory: this.state.inventory.concat('sword')
 			})
 			log = `You found a magic sword!  Your attack power has incresed!`
 		}
@@ -187,12 +192,22 @@ class App extends React.Component{
 			})
 		} else {
 			log = `You drink the mysterious potion and feel revitalized!`
+			var newInventory = this.state.inventory;
+			newInventory.splice(potionIndex, 1);
+			console.log('Potion index:', potionIndex)
+			console.log('New Inventory:', newInventory)
 			this.setState({
 				health: 100,
 				display: log,
-				adventureLog: this.state.adventureLog.concat(log)
+				adventureLog: this.state.adventureLog.concat(log),
+				inventory: newInventory
 			})
 		}
+	}
+	toggleInventory() {
+		this.setState({
+			inventoryOpen: !this.state.inventoryOpen
+		})
 	}
 	render() {
 		var location = rooms[this.state.location]
@@ -204,10 +219,11 @@ class App extends React.Component{
 		};
 		var currentLog = this.state.inBattle ? this.state.battleLog : this.state.adventureLog 
 		return (
-			<div>
-				<Title user={this.state.userName} saveGame={this.saveGame} />
+			<div id='main'>
+				<Title user={this.state.userName} saveGame={this.saveGame} loggingIn={this.state.loggingIn} alive={this.state.alive} inBattle={this.state.inBattle} />
 				{this.state.loggingIn ? <LoginScreen logIn={this.logIn} /> :
 					<div>
+						{this.state.inventoryOpen && <Inventory items={this.state.inventory} open={this.state.inventoryOpen} gold={this.state.gold} />}
 						<div id='leftPanel'>
 							{!this.state.inBattle && 
 								<CommandButtons 
@@ -229,6 +245,8 @@ class App extends React.Component{
 											addToLog={this.addToBattleLog}
 											winBattle={this.winBattle}
 											attack={this.state.attack}
+											lose={this.lose}
+											health={this.state.health}
 										/>
 									} 
 									<Log log={currentLog} />
@@ -238,6 +256,9 @@ class App extends React.Component{
 						</div>
 						<div id='rightPanel'>
 							<HealthBar health={this.state.health} />
+							<div id='inventoryButton' onClick={this.toggleInventory} >
+								Inventory
+							</div>
 						</div>
 					</div>
 				}

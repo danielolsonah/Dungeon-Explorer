@@ -1,6 +1,8 @@
 import React from 'react';
 import HealthBar from './HealthBar.jsx';
+import Sound from 'react-sound';
 
+const helpers = require('../../../helperFunctions/helpers.js');
 const villians = require('../../../helperFunctions/villians.js');
 
 class BattleScreen extends React.Component{
@@ -11,15 +13,20 @@ class BattleScreen extends React.Component{
 			enemyHealth: this.props.enemy.health,
 			yourTurn: true,
 			attack: this.props.attack,
-			battleOver: false
+			battleOver: false,
+			attacking: false,
+			groan: false
 		}
 		this.attack = this.attack.bind(this);
 		this.finishBattle = this.finishBattle.bind(this);
 		this.getAttacked = this.getAttacked.bind(this);
+		this.stopAttacking = this.stopAttacking.bind(this);
+		this.stopGroaning = this.stopGroaning.bind(this);
 	}
 	attack() {
 		this.setState({
-			yourTurn: false
+			yourTurn: false,
+			attacking: true
 		})
 		var randy = Math.ceil(Math.random() * 100);
 		var start = `You attack the ${this.state.enemy.class} with your sword`;
@@ -30,7 +37,7 @@ class BattleScreen extends React.Component{
 			var result = `You miss completely...`;
 			var damage = 0;
 		} else {
-			var result = `The attack finds it's mark`;
+			var result = `Your attack is successful`;
 			var damage = this.state.attack;
 		}
 		this.props.addToLog(start);
@@ -38,13 +45,14 @@ class BattleScreen extends React.Component{
 		setTimeout(() => {
 			this.setState({
 				enemyHealth: this.state.enemyHealth - damage,
-				yourTurn: false
+				yourTurn: false,
 			})
 			this.props.addToLog(result);
 			if (victorious) {
 				this.props.addToLog(`You are victorious!`);
 				this.setState({
-					battleOver: true
+					battleOver: true,
+					groan: true
 				})
 			} else {
 				this.getAttacked();
@@ -52,18 +60,24 @@ class BattleScreen extends React.Component{
 		}, 1000)
 	}
 	getAttacked() {
-		var randy = Math.ceil(Math.random() * 100);
-		var damage = randy < 95 ? this.state.enemy.attack : this.state.enemy.attack * 2;
+		var damage = helpers.randomRange(this.state.enemy.attack - 5, this.state.enemy.attack);
 		var start = `The ${this.state.enemy.class} attacks...`;
-		var result = randy < 95 ? `You take ${damage} damage` : `Critical Hit! You take ${damage} damage`;
+		var result = `You take ${damage} damage`;
 		setTimeout(() => {
 			this.props.addToLog(start)
 			setTimeout(() => {
 				this.props.addToLog(result);
-				this.props.loseHealth(damage);
 				this.setState({
-					yourTurn: true
+					attacking: true
 				})
+				if (this.props.health - damage <= 0) {
+					setTimeout(this.props.lose, 1000)
+				} else{
+					this.setState({
+						yourTurn: true
+					})
+				}
+				this.props.loseHealth(damage);
 			}, 1000)
 		}, 1000)
 	}
@@ -71,6 +85,16 @@ class BattleScreen extends React.Component{
 		var randy = Math.ceil(Math.random() * 20) * this.state.enemy.weight;
 		var summary = `You have defeated the ${this.state.enemy.class}!  You earned ${randy} gold!!`;
 		this.props.winBattle(summary, randy);
+	}
+	stopAttacking() {
+		this.setState({
+			attacking: false
+		})
+	}
+	stopGroaning() {
+		this.setState({
+			groan: false
+		})
 	}
 	render() {
 		var style = {
@@ -81,6 +105,20 @@ class BattleScreen extends React.Component{
 		}
 		return (
 			<div id='battleScreen'>
+				{this.state.attacking && 
+					<Sound 
+						url={!this.state.yourTurn ? 'steelsword.mp3' : 'slap.mp3'} 
+						playStatus={Sound.status.PLAYING}
+						onFinishedPlaying={this.stopAttacking}
+					/>
+				}
+				{this.state.groan && 
+					<Sound
+						url='black.mp3'
+						playStatus={Sound.status.PLAYING}
+						onFinishedPlaying={this.stopGroaning}
+					/> 
+				}
 				<div id='enemyHealthBar'>
 					Health
 					<div style={style}>
@@ -98,7 +136,10 @@ class BattleScreen extends React.Component{
 					}
 				</div>
 				<div id='villianPic'>
-					<img src='goblin.jpg' />
+					<div id='enemyTitle'>
+						{this.state.enemy.class}
+					</div>
+					<img src={this.state.enemy.pic} />
 					{this.state.yourTurn && <div id='yourMove'>Your Move...</div>}
 				</div>
 			</div>

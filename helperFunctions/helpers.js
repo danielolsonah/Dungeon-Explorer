@@ -1,8 +1,5 @@
-var takeCommand = input => {
-	switch (input) {
-		case 'look around': 
-			return this.location.surroundings;
-	}
+const randomRange = (min, max) => {
+	return Math.floor(Math.random() * (max - min)) + min;
 }
 
-module.exports.takeCommand = takeCommand;
+module.exports.randomRange = randomRange;
