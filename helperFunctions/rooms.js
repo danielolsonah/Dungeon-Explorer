@@ -62,7 +62,7 @@ module.exports = {
 	},
 	eighthRoom: {
 		id: 8,
-		surroundings: 'After slaying the troll, you notice an entrance to a cave the troll appeared to bo defending to the North.  There is also a heavy wooden door to the West.',
+		surroundings: 'After slaying the troll, you notice an entrance to a cave the troll appeared to be defending to the North.  There is also a heavy wooden door to the West.',
 		north: 'twelfthRoom',
 		west: 'ninthRoom',
 		east: null,
